@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Profissional - B3</title>
     <style>
-        /* Paleta de Cores Estilo TradingView / ProfitChart */
+        /* =========================================
+           1. VARIÁVEIS DE COR (DARK THEME)
+           Padrão de mercado para reduzir cansaço visual.
+           ========================================= */
         :root {
             --bg-dark: #0b0e14;
             --widget-bg: #131722;
@@ -14,12 +17,14 @@
             --text-main: #d1d4dc;
             --text-muted: #787b86;
             --accent-blue: #2962ff;
-            --accent-hover: #1e53e5;
             --buy-green: #089981;
             --error-red: #f23645;
             --console-bg: #000000;
         }
 
+        /* =========================================
+           2. ESTILIZAÇÃO GLOBAL DA PÁGINA
+           ========================================= */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-dark);
@@ -27,12 +32,15 @@
             margin: 0;
             padding: 40px 20px;
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Centraliza a boleta na tela */
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
+        /* =========================================
+           3. CONTAINER PRINCIPAL (A BOLETA)
+           ========================================= */
         .broker-widget {
             background-color: var(--widget-bg);
             width: 100%;
@@ -55,13 +63,13 @@
         .header-title {
             font-size: 14px;
             font-weight: 600;
-            letter-spacing: 0.5px;
             color: #ffffff;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
+        /* Efeito visual de "Sistema Online" (Bolinha piscando) */
         .status-pulse {
             width: 8px;
             height: 8px;
@@ -81,6 +89,9 @@
             padding: 24px 20px;
         }
 
+        /* =========================================
+           4. FORMULÁRIO E INPUTS
+           ========================================= */
         .form-group {
             margin-bottom: 16px;
         }
@@ -122,7 +133,7 @@
             border-color: var(--accent-blue);
         }
 
-        /* Estilização específica do select no Dark Mode */
+        /* Customização da setinha do Select para combinar com o Dark Mode */
         select {
             cursor: pointer;
             appearance: none;
@@ -132,6 +143,7 @@
             background-size: 10px auto;
         }
 
+        /* Caixa de Resumo Financeiro (Volume Total) */
         .summary-box {
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
@@ -173,6 +185,7 @@
             background-color: #067a67;
         }
 
+        /* Terminal de Logs (Recibos da B3) */
         .console-output {
             margin-top: 20px;
             background-color: var(--console-bg);
@@ -191,15 +204,17 @@
 <body>
 
     <div class="broker-widget">
+        <!-- Cabeçalho do Sistema -->
         <div class="widget-header">
             <div class="header-title">
                 <span class="status-pulse"></span>
                 B3 TRADING SYSTEM
             </div>
-            <div style="font-size: 11px; color: var(--text-muted);">MOCK API v1.0</div>
+            <div style="font-size: 11px; color: var(--text-muted);">MOCK API v2.0 (JSON)</div>
         </div>
         
         <div class="widget-body">
+            <!-- Formulário de Operação -->
             <form id="tradingForm">
                 <div class="form-group">
                     <label for="ticker">Ativo</label>
@@ -224,6 +239,7 @@
                     </div>
                 </div>
 
+                <!-- Visor do Cálculo Dinâmico em tempo real -->
                 <div class="summary-box">
                     <span class="summary-label">Volume Total:</span>
                     <span class="summary-value" id="total-value">R$ 3.550,00</span>
@@ -232,61 +248,73 @@
                 <button type="submit">Executar Compra</button>
             </form>
 
+            <!-- Console Log da Resposta do Java -->
             <div class="console-output" id="resultadoConsole">
-> Sistema pronto. Aguardando ordens...
+> Sistema pronto. Aguardando ordens (API Local via JSON)...
             </div>
         </div>
     </div>
 
+    <!-- =========================================
+         5. JAVASCRIPT - LÓGICA DE INTEGRAÇÃO API
+         ========================================= -->
     <script>
-        // Cálculo em tempo real do Volume Total
+        // Mapeamento dos elementos HTML que vamos interagir
         const qtdInput = document.getElementById('quantidade');
         const precoInput = document.getElementById('preco');
         const totalDisplay = document.getElementById('total-value');
 
+        // Função: Calcula o Volume Total da Ordem dinamicamente no Frontend
         function atualizarTotal() {
             const qtd = parseFloat(qtdInput.value) || 0;
             const preco = parseFloat(precoInput.value) || 0;
             const total = qtd * preco;
             
-            // Formata para o padrão de moeda do Brasil
+            // Formata o número final para o padrão de Moeda do Brasil (BRL)
             totalDisplay.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // Fica ouvindo sempre que o usuário digitar algo nos campos
+        // Eventos: Dispara o recálculo sempre que o usuário digita no input
         qtdInput.addEventListener('input', atualizarTotal);
         precoInput.addEventListener('input', atualizarTotal);
 
-        // Lógica de envio para o Backend Spring Boot (Mantida perfeitamente)
+        // Função Principal: Envio dos Dados para a API Java (Spring Boot)
         document.getElementById('tradingForm').addEventListener('submit', function(event) {
+            // Impede a página de recarregar ao clicar no botão
             event.preventDefault(); 
             
             const consoleBox = document.getElementById('resultadoConsole');
-            consoleBox.innerHTML = "> Roteando ordem para o motor de match...";
+            consoleBox.innerHTML = "> Roteando ordem via JSON para a B3...";
             consoleBox.style.color = "var(--text-muted)";
             consoleBox.style.borderLeftColor = "var(--text-muted)";
 
+            // 1. Coleta os valores atuais dos campos
             const ticker = document.getElementById('ticker').value;
             const quantidade = qtdInput.value;
             const preco = precoInput.value;
 
-            const formData = new URLSearchParams();
-            formData.append('ticker', ticker);
-            formData.append('quantidade', quantidade);
-            formData.append('preco', preco);
+            // 2. Monta o Objeto JavaScript estruturado (Baseado no DTO: OrdemRequest)
+            const ordemPayload = {
+                ticker: ticker,
+                quantidade: parseInt(quantidade), // Garante que é número inteiro
+                preco: parseFloat(preco)          // Garante que é número decimal
+            };
 
+            // 3. Chamada da API (Fetch)
             fetch('/api/ordens/comprar', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json', // Indica ao Java que o payload é JSON
                 },
-                body: formData.toString()
+                body: JSON.stringify(ordemPayload) // Converte o objeto JS para String JSON
             })
-            .then(response => response.text())
-            .then(data => {
+            .then(async response => {
+                const data = await response.text(); // Extrai a mensagem de texto (recibo) devolvida pelo Java
                 const hora = new Date().toLocaleTimeString();
                 
-                if(data.includes("Erro") || data.includes("insuficiente")) {
+                // 4. Validação pelo Status Code HTTP
+                // Se o Java não retornou 201 (Sucesso), cairá na condicional de Erro (400 Bad Request)
+                if(!response.ok) {
                     consoleBox.style.color = "var(--error-red)"; 
                     consoleBox.style.borderLeftColor = "var(--error-red)";
                 } else {
@@ -294,12 +322,14 @@
                     consoleBox.style.borderLeftColor = "var(--buy-green)";
                 }
                 
+                // Imprime a resposta na tela
                 consoleBox.innerHTML = `> [${hora}] RECIBO B3:\n\n${data}`;
             })
             .catch(error => {
+                // Cai aqui caso o servidor do Java esteja desligado (Tomcat off)
                 consoleBox.style.color = "var(--error-red)";
                 consoleBox.style.borderLeftColor = "var(--error-red)";
-                consoleBox.innerHTML = `> ERRO DE REDE:\nFalha na comunicação com o servidor Tomcat.`;
+                consoleBox.innerHTML = `> ERRO CRÍTICO DE REDE:\nFalha na comunicação com o servidor Tomcat.`;
             });
         });
     </script>
