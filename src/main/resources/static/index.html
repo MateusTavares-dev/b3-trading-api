@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Profissional - B3</title>
+    <style>
+        /* Paleta de Cores Estilo TradingView / ProfitChart */
+        :root {
+            --bg-dark: #0b0e14;
+            --widget-bg: #131722;
+            --input-bg: #1e222d;
+            --border-color: #2a2e39;
+            --text-main: #d1d4dc;
+            --text-muted: #787b86;
+            --accent-blue: #2962ff;
+            --accent-hover: #1e53e5;
+            --buy-green: #089981;
+            --error-red: #f23645;
+            --console-bg: #000000;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .broker-widget {
+            background-color: var(--widget-bg);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .widget-header {
+            background-color: #1a1e29;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            background-color: var(--buy-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--buy-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(8, 153, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(8, 153, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(8, 153, 129, 0); }
+        }
+
+        .widget-body {
+            padding: 24px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Estilização específica do select no Dark Mode */
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23787b86%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 10px auto;
+        }
+
+        .summary-box {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        button {
+            background-color: var(--buy-green);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+            text-transform: uppercase;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #067a67;
+        }
+
+        .console-output {
+            margin-top: 20px;
+            background-color: var(--console-bg);
+            color: var(--buy-green);
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            min-height: 70px;
+            white-space: pre-wrap;
+            border-left: 3px solid var(--buy-green);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="broker-widget">
+        <div class="widget-header">
+            <div class="header-title">
+                <span class="status-pulse"></span>
+                B3 TRADING SYSTEM
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);">MOCK API v1.0</div>
+        </div>
+        
+        <div class="widget-body">
+            <form id="tradingForm">
+                <div class="form-group">
+                    <label for="ticker">Ativo</label>
+                    <select id="ticker" name="ticker" required>
+                        <option value="PETR4">PETR4 - Petrobras PN</option>
+                        <option value="VALE3">VALE3 - Vale ON</option>
+                        <option value="ITUB4">ITUB4 - Itaú Unibanco PN</option>
+                        <option value="B3SA3">B3SA3 - B3 ON</option>
+                        <option value="WEGE3">WEGE3 - WEG ON</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantidade">Qtd.</label>
+                        <input type="number" id="quantidade" name="quantidade" value="100" required min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preco">Preço (R$)</label>
+                        <input type="number" id="preco" name="preco" value="35.50" required step="0.01" min="0.01">
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <span class="summary-label">Volume Total:</span>
+                    <span class="summary-value" id="total-value">R$ 3.550,00</span>
+                </div>
+                
+                <button type="submit">Executar Compra</button>
+            </form>
+
+            <div class="console-output" id="resultadoConsole">
+> Sistema pronto. Aguardando ordens...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cálculo em tempo real do Volume Total
+        const qtdInput = document.getElementById('quantidade');
+        const precoInput = document.getElementById('preco');
+        const totalDisplay = document.getElementById('total-value');
+
+        function atualizarTotal() {
+            const qtd = parseFloat(qtdInput.value) || 0;
+            const preco = parseFloat(precoInput.value) || 0;
+            const total = qtd * preco;
+            
+            // Formata para o padrão de moeda do Brasil
+            totalDisplay.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Fica ouvindo sempre que o usuário digitar algo nos campos
+        qtdInput.addEventListener('input', atualizarTotal);
+        precoInput.addEventListener('input', atualizarTotal);
+
+        // Lógica de envio para o Backend Spring Boot (Mantida perfeitamente)
+        document.getElementById('tradingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            
+            const consoleBox = document.getElementById('resultadoConsole');
+            consoleBox.innerHTML = "> Roteando ordem para o motor de match...";
+            consoleBox.style.color = "var(--text-muted)";
+            consoleBox.style.borderLeftColor = "var(--text-muted)";
+
+            const ticker = document.getElementById('ticker').value;
+            const quantidade = qtdInput.value;
+            const preco = precoInput.value;
+
+            const formData = new URLSearchParams();
+            formData.append('ticker', ticker);
+            formData.append('quantidade', quantidade);
+            formData.append('preco', preco);
+
+            fetch('/api/ordens/comprar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            })
+            .then(response => response.text())
+            .then(data => {
+                const hora = new Date().toLocaleTimeString();
+                
+                if(data.includes("Erro") || data.includes("insuficiente")) {
+                    consoleBox.style.color = "var(--error-red)"; 
+                    consoleBox.style.borderLeftColor = "var(--error-red)";
+                } else {
+                    consoleBox.style.color = "var(--buy-green)"; 
+                    consoleBox.style.borderLeftColor = "var(--buy-green)";
+                }
+                
+                consoleBox.innerHTML = `> [${hora}] RECIBO B3:\n\n${data}`;
+            })
+            .catch(error => {
+                consoleBox.style.color = "var(--error-red)";
+                consoleBox.style.borderLeftColor = "var(--error-red)";
+                consoleBox.innerHTML = `> ERRO DE REDE:\nFalha na comunicação com o servidor Tomcat.`;
+            });
+        });
+    </script>
+</body>
+</html>
